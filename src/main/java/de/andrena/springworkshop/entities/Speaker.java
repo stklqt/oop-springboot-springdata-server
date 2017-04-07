@@ -1,5 +1,6 @@
 package de.andrena.springworkshop.entities;
 
+import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
@@ -26,4 +27,5 @@ public class Speaker {
     public void setTitle(String title) {
         this.title = title;
     }
+
 }

@@ -1,8 +1,11 @@
 package de.andrena.springworkshop.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -10,6 +13,7 @@ import java.util.List;
 public class Event {
 
     @Id
+    @GeneratedValue
     private int id;
 
     private String title;
@@ -50,7 +54,8 @@ public class Event {
         this.endTime = endTime;
     }
 
-    @ManyToMany
+    @OneToMany(cascade = CascadeType.ALL)
+//    @JoinColumn(name="fk_speaker")
     private List<Speaker> speakers;
 
     public List<Speaker> getSpeakers() {
@@ -59,5 +64,16 @@ public class Event {
 
     public void setSpeakers(List<Speaker> speakers) {
         this.speakers = speakers;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("title", title)
+                .append("startTime", startTime)
+                .append("endTime", endTime)
+                .append("speakers", speakers)
+                .toString();
     }
 }

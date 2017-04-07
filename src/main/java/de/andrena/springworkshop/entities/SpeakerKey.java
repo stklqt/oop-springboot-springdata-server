@@ -15,12 +15,23 @@ public class SpeakerKey implements Serializable {
         this.surname = surname;
     }
 
+    public SpeakerKey() {
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("firstName", firstName)
                 .append("surname", surname)
                 .toString();
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 
     @Override
