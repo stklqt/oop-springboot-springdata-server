@@ -1,11 +1,29 @@
 package de.andrena.springworkshop.entities;
 
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
 @Entity
 public class Speaker {
 
+    @EmbeddedId
+    private SpeakerKey name;
+
     private String title;
-    private String firstName;
-    private String surname;
+
+    public SpeakerKey getName() {
+        return name;
+    }
+
+    public void setName(SpeakerKey name) {
+        this.name = name;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 }
