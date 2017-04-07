@@ -12,23 +12,23 @@ import java.util.List;
 @Entity
 public class Event {
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     @Id
     @GeneratedValue
-    private int id;
+    private Integer id;
 
     private String title;
 
     private LocalDateTime startTime;
 
     private LocalDateTime endTime;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getTitle() {
         return title;
