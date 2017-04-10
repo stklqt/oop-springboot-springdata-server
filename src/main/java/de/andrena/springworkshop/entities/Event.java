@@ -54,7 +54,7 @@ public class Event {
         this.endTime = endTime;
     }
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL)
 //    @JoinColumn(name="fk_speaker")
     private List<Speaker> speakers;
 
