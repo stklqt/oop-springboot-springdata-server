@@ -3,19 +3,22 @@ package de.andrena.springworkshop;
 import de.andrena.springworkshop.entities.Event;
 import de.andrena.springworkshop.entities.Speaker;
 import de.andrena.springworkshop.entities.SpeakerKey;
+import de.andrena.springworkshop.repositories.EventRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.hateoas.PagedResources;
-import org.springframework.http.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -23,41 +26,61 @@ import static org.junit.Assert.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class SpringworkshopApplicationTests {
 
-	public static final String ANOTHER_TITLE = "another title";
-	public static final String MY_EVENT = "my event";
-	@Autowired
-	private TestRestTemplate testRestTemplate;
+    public static final String ANOTHER_TITLE = "another title";
+    public static final String MY_EVENT = "my event";
+    @Autowired
+    private TestRestTemplate testRestTemplate;
 
-	@Test
-	public void insertTestEvent() throws Exception {
-		Event event = createEvent(MY_EVENT, new SpeakerKey("Alice", "Doe"));
-		Event event2 = createEvent(ANOTHER_TITLE, new SpeakerKey("Bob", "Doe"));
+    @Autowired
+    private EventRepository repository;
 
-		testRestTemplate.postForEntity("/event",event, Map.class);
-		testRestTemplate.postForEntity("/event",event2, Map.class);
+    @Test
+    @DirtiesContext
+    public void insertTestEvent() throws Exception {
+        Event event = createEvent(MY_EVENT, new SpeakerKey("Alice", "Doe"));
+        Event event2 = createEvent(ANOTHER_TITLE, new SpeakerKey("Bob", "Doe"));
 
-		ResponseEntity<PagedEvent> pagedResult = testRestTemplate.getForEntity("/event", PagedEvent.class);
-		assertThat(pagedResult.getBody().getContent().size(),is(2));
+        testRestTemplate.postForEntity("/event", event, Map.class);
+        testRestTemplate.postForEntity("/event", event2, Map.class);
 
-		ResponseEntity<Event> typedResult = testRestTemplate.getForEntity("/event/1", Event.class);
-		assertThat(typedResult.getBody().getTitle(), is(MY_EVENT));
+        ResponseEntity<PagedEvent> pagedResult = testRestTemplate.getForEntity("/event", PagedEvent.class);
+        assertThat(pagedResult.getBody().getContent().size(), is(2));
 
-		typedResult = testRestTemplate.getForEntity("/event/2", Event.class);
-		assertThat(typedResult.getBody().getTitle(), is(ANOTHER_TITLE));
-	}
+        ResponseEntity<Event> typedResult = testRestTemplate.getForEntity("/event/1", Event.class);
+        assertThat(typedResult.getBody().getTitle(), is(MY_EVENT));
 
-	private Event createEvent(String title, SpeakerKey name) {
-		Event event = new Event();
-		event.setTitle(title);
-		event.setStartTime(LocalDateTime.now());
-		event.setEndTime(LocalDateTime.now().plusHours(1));
-		Speaker speaker = new Speaker();
-		speaker.setTitle("a title");
-		speaker.setName(name);
-		event.setSpeakers(Arrays.asList(speaker));
-		return event;
-	}
+        typedResult = testRestTemplate.getForEntity("/event/2", Event.class);
+        assertThat(typedResult.getBody().getTitle(), is(ANOTHER_TITLE));
+    }
 
-	private static class PagedEvent extends PagedResources<Event>{
-	}
+    @Test
+    @DirtiesContext
+    public void save() throws Exception {
+        SpeakerKey speaker = new SpeakerKey("John", "Doe");
+        Event event = createEvent(MY_EVENT, speaker);
+        Event event2 = createEvent(ANOTHER_TITLE, speaker);
+
+        repository.save(event);
+        repository.save(event2);
+
+        Event one = repository.findOne(event.getId());
+        Event two = repository.findOne(event2.getId());
+        assertThat(one.getSpeakers(), contains(speaker));
+        assertThat(two.getSpeakers(), contains(speaker));
+    }
+
+    private Event createEvent(String title, SpeakerKey name) {
+        Event event = new Event();
+        event.setTitle(title);
+        event.setStartTime(LocalDateTime.now());
+        event.setEndTime(LocalDateTime.now().plusHours(1));
+        Speaker speaker = new Speaker();
+        speaker.setCompany("a title");
+        speaker.setName(name);
+        event.setSpeakers(Collections.singleton(speaker));
+        return event;
+    }
+
+    private static class PagedEvent extends PagedResources<Event> {
+    }
 }
