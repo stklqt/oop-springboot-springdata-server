@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
@@ -23,7 +24,7 @@ public class Event {
     private String description;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    @ManyToMany(cascade = {CascadeType.ALL})
+    @ManyToMany(fetch = FetchType.EAGER)
     private Set<Speaker> speakers;
     @ManyToOne(cascade = CascadeType.ALL)
     private Track track;

@@ -2,7 +2,6 @@ package de.andrena.springworkshop.entities;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.Embeddable;
 import java.io.Serializable;
@@ -22,10 +21,7 @@ public class SpeakerKey implements Serializable {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("firstName", firstName)
-                .append("surname", surname)
-                .toString();
+        return surname + "_" + firstName;
     }
 
     public String getSurname() {

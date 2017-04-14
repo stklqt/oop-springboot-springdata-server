@@ -4,6 +4,7 @@ import de.andrena.springworkshop.entities.Event;
 import de.andrena.springworkshop.entities.Speaker;
 import de.andrena.springworkshop.entities.SpeakerKey;
 import de.andrena.springworkshop.repositories.EventRepository;
+import de.andrena.springworkshop.repositories.SpeakerRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +33,20 @@ public class SpringworkshopApplicationTests {
     private TestRestTemplate testRestTemplate;
 
     @Autowired
-    private EventRepository repository;
+    private EventRepository eventRepository;
+    @Autowired
+    private SpeakerRepository speakerRepository;
 
     @Test
     @DirtiesContext
     public void insertTestEvent() throws Exception {
-        Event event = createEvent(MY_EVENT, new SpeakerKey("Alice", "Doe"));
-        Event event2 = createEvent(ANOTHER_TITLE, new SpeakerKey("Bob", "Doe"));
+
+        Speaker speaker = createSpeaker("company", new SpeakerKey("Alice", "Doe"));
+        testRestTemplate.postForEntity("/speaker", speaker, Map.class);
+        Event event = createEvent(MY_EVENT, speaker);
+        Speaker speaker2 = createSpeaker("company", new SpeakerKey("Bob", "Doe"));
+        testRestTemplate.postForEntity("/speaker", speaker2, Map.class);
+        Event event2 = createEvent(ANOTHER_TITLE, speaker2);
 
         testRestTemplate.postForEntity("/event", event, Map.class);
         testRestTemplate.postForEntity("/event", event2, Map.class);
@@ -56,29 +64,35 @@ public class SpringworkshopApplicationTests {
     @Test
     @DirtiesContext
     public void save() throws Exception {
-        SpeakerKey speaker = new SpeakerKey("John", "Doe");
+        SpeakerKey speakerKey = new SpeakerKey("John", "Doe");
+        Speaker speaker = createSpeaker("company", speakerKey);
+        speakerRepository.save(speaker);
         Event event = createEvent(MY_EVENT, speaker);
         Event event2 = createEvent(ANOTHER_TITLE, speaker);
 
-        repository.save(event);
-        repository.save(event2);
+        eventRepository.save(event);
+        eventRepository.save(event2);
 
-        Event one = repository.findOne(event.getId());
-        Event two = repository.findOne(event2.getId());
+        Event one = eventRepository.findOne(event.getId());
+        Event two = eventRepository.findOne(event2.getId());
         assertThat(one.getSpeakers(), contains(speaker));
         assertThat(two.getSpeakers(), contains(speaker));
     }
 
-    private Event createEvent(String title, SpeakerKey name) {
+    private Event createEvent(String title, Speaker name) {
         Event event = new Event();
         event.setTitle(title);
         event.setStartTime(LocalDateTime.now());
         event.setEndTime(LocalDateTime.now().plusHours(1));
+        event.setSpeakers(Collections.singleton(name));
+        return event;
+    }
+
+    private Speaker createSpeaker(String company, SpeakerKey name) {
         Speaker speaker = new Speaker();
         speaker.setCompany("a title");
         speaker.setName(name);
-        event.setSpeakers(Collections.singleton(speaker));
-        return event;
+        return speaker;
     }
 
     private static class PagedEvent extends PagedResources<Event> {
