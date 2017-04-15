@@ -11,8 +11,7 @@ import javax.annotation.Resource;
 
 public class EventDaoImpl implements EventDao {
 
-    @Resource
-    private RestTemplate restService;
+    private RestTemplate restService = new RestTemplate();
 
     private String scheme = "http";
     private String host = "localhost:8090";
