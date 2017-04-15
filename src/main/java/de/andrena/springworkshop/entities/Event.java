@@ -1,16 +1,57 @@
 package de.andrena.springworkshop.entities;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Event {
+
+    @Id
+    @GeneratedValue
+    private Integer id;
+    private String title;
+    @Lob
+    private String description;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Speaker> speakers;
+    @ManyToOne(cascade = CascadeType.ALL)
+    private Track track;
+    @ManyToOne(cascade = CascadeType.ALL)
+    private Room room;
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("title", title)
+                .append("description", description)
+                .append("startTime", startTime)
+                .append("endTime", endTime)
+                .append("speakers", speakers)
+                .append("track", track)
+                .append("room", room)
+                .toString();
+    }
+
+    public Set<Speaker> getSpeakers() {
+        return speakers;
+    }
+
+    public void setSpeakers(Set<Speaker> speakers) {
+        this.speakers = speakers;
+    }
 
     public Integer getId() {
         return id;
@@ -19,16 +60,6 @@ public class Event {
     public void setId(Integer id) {
         this.id = id;
     }
-
-    @Id
-    @GeneratedValue
-    private Integer id;
-
-    private String title;
-
-    private LocalDateTime startTime;
-
-    private LocalDateTime endTime;
 
     public String getTitle() {
         return title;
@@ -54,26 +85,28 @@ public class Event {
         this.endTime = endTime;
     }
 
-    @OneToMany(cascade = CascadeType.ALL)
-//    @JoinColumn(name="fk_speaker")
-    private List<Speaker> speakers;
 
-    public List<Speaker> getSpeakers() {
-        return speakers;
+    public Track getTrack() {
+        return track;
     }
 
-    public void setSpeakers(List<Speaker> speakers) {
-        this.speakers = speakers;
+    public void setTrack(Track track) {
+        this.track = track;
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("id", id)
-                .append("title", title)
-                .append("startTime", startTime)
-                .append("endTime", endTime)
-                .append("speakers", speakers)
-                .toString();
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
     }
 }

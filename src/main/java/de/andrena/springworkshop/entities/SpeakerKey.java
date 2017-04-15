@@ -1,6 +1,7 @@
 package de.andrena.springworkshop.entities;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.Embeddable;
 import java.io.Serializable;
@@ -20,10 +21,7 @@ public class SpeakerKey implements Serializable {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("firstName", firstName)
-                .append("surname", surname)
-                .toString();
+        return surname + "_" + firstName;
     }
 
     public String getSurname() {
@@ -42,7 +40,7 @@ public class SpeakerKey implements Serializable {
 
         SpeakerKey that = (SpeakerKey) o;
 
-        return new org.apache.commons.lang3.builder.EqualsBuilder()
+        return new EqualsBuilder()
                 .append(firstName, that.firstName)
                 .append(surname, that.surname)
                 .isEquals();
@@ -50,7 +48,7 @@ public class SpeakerKey implements Serializable {
 
     @Override
     public int hashCode() {
-        return new org.apache.commons.lang3.builder.HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(17, 37)
                 .append(firstName)
                 .append(surname)
                 .toHashCode();

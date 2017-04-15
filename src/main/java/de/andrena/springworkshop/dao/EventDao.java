@@ -1,7 +1,13 @@
 package de.andrena.springworkshop.dao;
 
-/**
- * Created by bchow on 14/04/2017.
- */
-public class EventDao {
+import de.andrena.springworkshop.dto.EventDTO;
+import de.andrena.springworkshop.dto.EventListDTO;
+
+public interface EventDao {
+
+    EventListDTO getAllEvents();
+
+    EventDTO getEventWithTitle(String title);
+
+    EventListDTO getEventsWithDescriptionContaining(String description);
 }
