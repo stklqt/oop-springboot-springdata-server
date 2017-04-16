@@ -1,10 +1,8 @@
 package de.andrena.springworkshop.parser;
 
 import de.andrena.springworkshop.entities.Event;
-import de.andrena.springworkshop.entities.Room;
 import de.andrena.springworkshop.entities.Speaker;
 import de.andrena.springworkshop.entities.SpeakerKey;
-import de.andrena.springworkshop.entities.Track;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,8 +20,8 @@ public class Converter {
 
     public List<Event> extractEvents(Nodes nodes) {
         return nodes.events.stream().map(eventElement
-                -> new Event(eventElement.title, eventElement.description, LocalDateTime.of(date, eventElement.startTime),
-                LocalDateTime.of(date, eventElement.endTime),
+                -> new Event(eventElement.title, eventElement.description, eventElement.startTime == null ? null : LocalDateTime.of(date, eventElement.startTime),
+                eventElement.endTime == null ? null : LocalDateTime.of(date, eventElement.endTime),
                 extractSpeakers(eventElement),
                 eventElement.track, eventElement.room)).collect(Collectors.toList());
     }

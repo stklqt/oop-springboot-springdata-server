@@ -6,11 +6,11 @@ import de.andrena.springworkshop.repositories.EventRepository;
 import de.andrena.springworkshop.repositories.SpeakerRepository;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
@@ -27,11 +27,17 @@ public class EventCreator implements ApplicationRunner {
     private SpeakerRepository speakerRepository;
     @Override
     public void run(ApplicationArguments applicationArguments) throws Exception {
-        Nodes nodes = parser.unmarshal(new URL("https://entwicklertag.de/karlsruhe/2016/programm-export/1"));
-        List<Event> events = new Converter(LocalDate.parse("2016-05-15")).extractEvents(nodes);
+        List<Event> events = fetchEvents("https://entwicklertag.de/karlsruhe/2016/programm-export/1", "2016-05-15");
+        events.addAll(fetchEvents("https://entwicklertag.de/karlsruhe/2016/programm-export/2", "2016-05-16"));
+        events.addAll(fetchEvents("https://entwicklertag.de/karlsruhe/2016/programm-export/3", "2016-05-17"));
         Set<Speaker> speakers = events.stream().map(event -> event.getSpeakers()).flatMap(speakerSet -> speakerSet.stream()).collect(Collectors.toSet());
         speakerRepository.save(speakers);
         eventRepository.save(events);
         System.out.println("speakers = " + speakers);
+    }
+
+    private List<Event> fetchEvents(String url, String day) throws IOException, JAXBException {
+        Nodes nodes = parser.unmarshal(new URL(url));
+        return new Converter(LocalDate.parse(day)).extractEvents(nodes);
     }
 }
