@@ -1,6 +1,7 @@
 package de.andrena.springworkshop.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class EventDTO {
 
@@ -12,9 +13,35 @@ public class EventDTO {
 
     public LocalDateTime endTime;
 
-    //    public Set<SpeakerDTO> speakers;
-//    public Track track;
-//    public Room room;
+    public List<SpeakerDTO> speakers;
+
+    public TrackDTO track;
+
+    public RoomDTO room;
+
+    public TrackDTO getTrack() {
+        return track;
+    }
+
+    public void setTrack(TrackDTO track) {
+        this.track = track;
+    }
+
+    public RoomDTO getRoom() {
+        return room;
+    }
+
+    public void setRoom(RoomDTO room) {
+        this.room = room;
+    }
+
+    public List<SpeakerDTO> getSpeakers() {
+        return speakers;
+    }
+
+    public void setSpeakers(List<SpeakerDTO> speakers) {
+        this.speakers = speakers;
+    }
 
     public String getTitle() {
         return title;

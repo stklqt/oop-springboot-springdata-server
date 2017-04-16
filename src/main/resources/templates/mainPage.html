@@ -26,15 +26,23 @@
                 <th>Description</th>
                 <th>Start Time</th>
                 <th>End Time</th>
+                <th>Room</th>
+                <th>Track</th>
+                <th>Speakers</th>
             </tr>
         </thead>
 
         <tbody>
             <tr th:each="event : ${events}">
-                <td th:text="${event.title}"/>
-                <td th:text="${event.description}"/>
-                <td th:text="${event.startTime}"/>
-                <td th:text="${event.endTime}"/>
+                <td th:text="${event.title}"></td>
+                <td th:text="${event.description}"></td>
+                <td th:text="${event.startTime}"></td>
+                <td th:text="${event.endTime}"></td>
+                <td th:text="${event.room.name}"></td>
+                <td th:text="${event.track.track}"></td>
+                <td th:each="speaker : ${event.speakers}">
+                    <span th:text="${speaker.name}"></span>
+                </td>
             </tr>
         </tbody>
 

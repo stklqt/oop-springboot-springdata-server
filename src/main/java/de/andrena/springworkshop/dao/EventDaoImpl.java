@@ -7,8 +7,6 @@ import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.annotation.Resource;
-
 public class EventDaoImpl implements EventDao {
 
     private RestTemplate restService = new RestTemplate();
@@ -24,6 +22,8 @@ public class EventDaoImpl implements EventDao {
         final String url = apiUrlBuilder.scheme(scheme).host(host).path(path).build().toString();
 
         final EventResponseDTO eventResponseDTO = get(url, EventResponseDTO.class);
+
+        //TODO: fill Speakers belonging to Event
         return eventResponseDTO._embedded;
     }
 
