@@ -1,5 +1,8 @@
 package de.andrena.springworkshop.entities;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.Entity;
@@ -9,24 +12,44 @@ import javax.persistence.Id;
 @Entity
 public class Track {
     @Id
-    @GeneratedValue
-    private int id;
     private String track;
+
+    public Track(String track) {
+        this.track = track;
+    }
+
+    public static Track of(String track) {
+        if (StringUtils.isNotBlank(track)) {
+            return new Track(track);
+        }
+        return null;
+    }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("id", id)
                 .append("track", track)
                 .toString();
     }
 
-    public int getId() {
-        return id;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Track track1 = (Track) o;
+
+        return new EqualsBuilder()
+                .append(track, track1.track)
+                .isEquals();
     }
 
-    public void setId(int id) {
-        this.id = id;
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(track)
+                .toHashCode();
     }
 
     public String getTrack() {
