@@ -21,7 +21,7 @@ public class EventFacadeImpl implements EventFacade {
     }
 
     @Override
-    public EventDTO getEventWithTitle(String title){
-        return eventDao.getEventWithTitle(title);
+    public List<EventDTO> getEventWithTitle(String title) {
+        return eventDao.getEventsWithTitleContaining(title).events;
     }
 }

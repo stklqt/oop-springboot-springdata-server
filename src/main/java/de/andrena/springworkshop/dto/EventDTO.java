@@ -15,23 +15,23 @@ public class EventDTO {
 
     public List<SpeakerDTO> speakers;
 
-    public TrackDTO track;
+    public String track;
 
-    public RoomDTO room;
+    public String room;
 
-    public TrackDTO getTrack() {
+    public String getTrack() {
         return track;
     }
 
-    public void setTrack(TrackDTO track) {
+    public void setTrack(String track) {
         this.track = track;
     }
 
-    public RoomDTO getRoom() {
+    public String getRoom() {
         return room;
     }
 
-    public void setRoom(RoomDTO room) {
+    public void setRoom(String room) {
         this.room = room;
     }
 
