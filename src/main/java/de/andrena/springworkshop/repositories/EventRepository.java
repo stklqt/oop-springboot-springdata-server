@@ -1,6 +1,7 @@
 package de.andrena.springworkshop.repositories;
 
 import de.andrena.springworkshop.entities.Event;
+import de.andrena.springworkshop.entities.InlineSpeaker;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -8,7 +9,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@RepositoryRestResource(path = "event")
+@RepositoryRestResource(path = "event", excerptProjection = InlineSpeaker.class)
 public interface EventRepository extends CrudRepository<Event, Integer> {
     List<Event> findByTitleContaining(@Param("title") String title);
 
