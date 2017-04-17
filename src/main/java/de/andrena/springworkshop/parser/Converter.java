@@ -26,7 +26,7 @@ public class Converter {
                 eventElement.track, eventElement.room)).collect(Collectors.toList());
     }
 
-    public Set<Speaker> extractSpeakers(EventElement nodes) {
+    private Set<Speaker> extractSpeakers(EventElement nodes) {
         if (nodes.referent != null) {
             if (nodes.referent.nodes != null) {
                 if (nodes.referent.nodes.referents != null) {

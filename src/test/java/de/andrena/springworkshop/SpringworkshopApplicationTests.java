@@ -57,6 +57,9 @@ public class SpringworkshopApplicationTests {
         ParameterizedTypeReference<PagedResources<Resource<Speaker>>> pagedSpeakersType = new ParameterizedTypeReference<PagedResources<Resource<Speaker>>>() {};
 
 
+        ResponseEntity<PagedResources<Resource<Event>>> pagedResult = testRestTemplate.exchange("/event", HttpMethod.GET, null, pagedEventsType);
+        assertThat(pagedResult.getBody().getContent().size(), is(78));
+
         Speaker speaker = createSpeaker("company", new SpeakerKey("Alice", "Doe"));
 
         URI speakerLocation = testRestTemplate.postForLocation("/speaker",speaker);
@@ -73,17 +76,17 @@ public class SpringworkshopApplicationTests {
 
         associateSpeakerWithEvent(event2Location, speaker2Location);
 
-        ResponseEntity<PagedResources<Resource<Event>>> pagedResult = testRestTemplate.exchange("/event", HttpMethod.GET, null, pagedEventsType);
-        assertThat(pagedResult.getBody().getContent().size(), is(38));
+        pagedResult = testRestTemplate.exchange("/event", HttpMethod.GET, null, pagedEventsType);
+        assertThat(pagedResult.getBody().getContent().size(), is(80));
 
-        ResponseEntity<Resource<Event>> singleResult = testRestTemplate.exchange("/event/37", HttpMethod.GET, null, eventType);
+        ResponseEntity<Resource<Event>> singleResult = testRestTemplate.exchange("/event/79", HttpMethod.GET, null, eventType);
         assertThat(singleResult.getBody().getContent().getTitle(), is(MY_EVENT));
 
         ResponseEntity<PagedResources<Resource<Speaker>>> speakers = testRestTemplate.exchange(singleResult.getBody().getLink("speakers").getHref(), HttpMethod.GET, null, pagedSpeakersType);
         assertThat(speakers.getBody().getContent().stream().map(speakerResource -> speakerResource.getContent()).collect(Collectors.toList()), contains(speaker));
 
 
-        singleResult = testRestTemplate.exchange("/event/38", HttpMethod.GET, null, eventType);
+        singleResult = testRestTemplate.exchange("/event/80", HttpMethod.GET, null, eventType);
         assertThat(singleResult.getBody().getContent().getTitle(), is(ANOTHER_TITLE));
         speakers = testRestTemplate.exchange(singleResult.getBody().getLink("speakers").getHref(), HttpMethod.GET, null, pagedSpeakersType);
         assertThat(speakers.getBody().getContent().stream().map(speakerResource -> speakerResource.getContent()).collect(Collectors.toList()), contains(speaker2));
@@ -129,9 +132,6 @@ public class SpringworkshopApplicationTests {
         speaker.setCompany("a title");
         speaker.setName(name);
         return speaker;
-    }
-
-    private static class PagedEvent extends PagedResources<Event> {
     }
 
 }
