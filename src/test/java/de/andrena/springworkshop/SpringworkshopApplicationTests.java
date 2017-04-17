@@ -1,6 +1,5 @@
 package de.andrena.springworkshop;
 
-import com.mysql.fabric.xmlrpc.base.Param;
 import de.andrena.springworkshop.entities.Event;
 import de.andrena.springworkshop.entities.Speaker;
 import de.andrena.springworkshop.entities.SpeakerKey;
@@ -14,8 +13,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
-import org.springframework.hateoas.mvc.TypeReferences;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -24,16 +21,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -56,9 +52,7 @@ public class SpringworkshopApplicationTests {
         ParameterizedTypeReference<Resource<Event>> eventType = new ParameterizedTypeReference<Resource<Event>>() {};
         ParameterizedTypeReference<PagedResources<Resource<Speaker>>> pagedSpeakersType = new ParameterizedTypeReference<PagedResources<Resource<Speaker>>>() {};
 
-
         ResponseEntity<PagedResources<Resource<Event>>> pagedResult = testRestTemplate.exchange("/event", HttpMethod.GET, null, pagedEventsType);
-        assertThat(pagedResult.getBody().getContent().size(), is(78));
 
         Speaker speaker = createSpeaker("company", new SpeakerKey("Alice", "Doe"));
 
@@ -77,16 +71,16 @@ public class SpringworkshopApplicationTests {
         associateSpeakerWithEvent(event2Location, speaker2Location);
 
         pagedResult = testRestTemplate.exchange("/event", HttpMethod.GET, null, pagedEventsType);
-        assertThat(pagedResult.getBody().getContent().size(), is(80));
+        assertThat(pagedResult.getBody().getContent(), hasSize(2));
 
-        ResponseEntity<Resource<Event>> singleResult = testRestTemplate.exchange("/event/79", HttpMethod.GET, null, eventType);
+        ResponseEntity<Resource<Event>> singleResult = testRestTemplate.exchange("/event/1", HttpMethod.GET, null, eventType);
         assertThat(singleResult.getBody().getContent().getTitle(), is(MY_EVENT));
 
         ResponseEntity<PagedResources<Resource<Speaker>>> speakers = testRestTemplate.exchange(singleResult.getBody().getLink("speakers").getHref(), HttpMethod.GET, null, pagedSpeakersType);
         assertThat(speakers.getBody().getContent().stream().map(speakerResource -> speakerResource.getContent()).collect(Collectors.toList()), contains(speaker));
 
 
-        singleResult = testRestTemplate.exchange("/event/80", HttpMethod.GET, null, eventType);
+        singleResult = testRestTemplate.exchange("/event/2", HttpMethod.GET, null, eventType);
         assertThat(singleResult.getBody().getContent().getTitle(), is(ANOTHER_TITLE));
         speakers = testRestTemplate.exchange(singleResult.getBody().getLink("speakers").getHref(), HttpMethod.GET, null, pagedSpeakersType);
         assertThat(speakers.getBody().getContent().stream().map(speakerResource -> speakerResource.getContent()).collect(Collectors.toList()), contains(speaker2));

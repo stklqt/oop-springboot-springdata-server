@@ -17,7 +17,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Component
+//dont run, we have sql import files
+//@Component
 public class EventCreator implements ApplicationRunner {
     @Resource
     private Parser parser;

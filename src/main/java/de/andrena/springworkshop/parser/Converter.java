@@ -3,6 +3,7 @@ package de.andrena.springworkshop.parser;
 import de.andrena.springworkshop.entities.Event;
 import de.andrena.springworkshop.entities.Speaker;
 import de.andrena.springworkshop.entities.SpeakerKey;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,10 +21,33 @@ public class Converter {
 
     public List<Event> extractEvents(Nodes nodes) {
         return nodes.events.stream().map(eventElement
-                -> new Event(eventElement.title, eventElement.description, eventElement.startTime == null ? null : LocalDateTime.of(date, eventElement.startTime),
+                -> new Event(eventElement.title,
+                eventElement.description,
+                eventElement.startTime == null ? null : LocalDateTime.of(date, eventElement.startTime),
                 eventElement.endTime == null ? null : LocalDateTime.of(date, eventElement.endTime),
                 extractSpeakers(eventElement),
-                eventElement.track, eventElement.room)).collect(Collectors.toList());
+                extractTrack(eventElement.track),
+                extractRoom(eventElement.room, eventElement.track)))
+                .collect(Collectors.toList());
+    }
+
+    private String extractRoom(String room, String track) {
+        if (StringUtils.isNotBlank(room)) {
+            return room;
+        }
+        String[] trackAndRoom = track.split("<br>");
+        if (trackAndRoom.length > 1) {
+            return trackAndRoom[1];
+        }
+        return room;
+    }
+
+    private String extractTrack(String track) {
+        String[] trackAndRoom = track.split("<br>");
+        if (trackAndRoom.length > 1) {
+            return trackAndRoom[0];
+        }
+        return track;
     }
 
     private Set<Speaker> extractSpeakers(EventElement nodes) {
