@@ -7,7 +7,7 @@ public interface EventDao {
 
     EventListDTO getAllEvents();
 
-    EventDTO getEventWithTitle(String title);
+    EventListDTO getEventsWithTitleContaining(String title);
 
     EventListDTO getEventsWithDescriptionContaining(String description);
 }

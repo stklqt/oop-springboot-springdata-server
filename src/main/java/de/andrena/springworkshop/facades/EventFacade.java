@@ -9,5 +9,5 @@ public interface EventFacade {
 
     List<EventDTO> getEventsWithDescriptionContaining(String description);
 
-    EventDTO getEventWithTitle(String title);
+    List<EventDTO> getEventWithTitle(String title);
 }

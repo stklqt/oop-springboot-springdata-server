@@ -28,13 +28,14 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public EventDTO getEventWithTitle(String title) {
-        final String path = "/event/search/findByTitle";
+    public EventListDTO getEventsWithTitleContaining(String title) {
+        final String path = "/event/search/findByTitleContaining";
 
         final UriComponentsBuilder apiUrlBuilder = UriComponentsBuilder.newInstance();
         final String url = apiUrlBuilder.scheme(scheme).host(host).path(path).queryParam("title", title).build().toString();
 
-        return get(url, EventDTO.class);
+        final EventResponseDTO eventResponseDTO = get(url, EventResponseDTO.class);
+        return eventResponseDTO._embedded;
     }
 
     @Override
