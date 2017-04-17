@@ -17,5 +17,4 @@ public interface EventRepository extends CrudRepository<Event, Integer> {
     List<Event> findByStartTimeBefore(@Param("startTime") LocalDateTime startTime);
 
     Long countAllByStartTimeBefore(@Param("startTime") LocalDateTime startTime);
-
 }
