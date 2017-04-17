@@ -24,4 +24,9 @@ public class AgendaController {
         model.addAttribute("events", eventFacade.getEventWithTitle(title));
         return "searchPage";
     }
+
+    @RequestMapping(value = "/reactAgenda")
+    public String reactAgenda() {
+        return "mainPageReact";
+    }
 }

@@ -1,96 +1,75 @@
 'use strict';
 
-// tag::vars[]
 const React = require('react');
 const ReactDOM = require('react-dom');
 const client = require('./client');
-// end::vars[]
 
-// tag::app[]
 class App extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {employees: []};
+        this.state = {events: []};
     }
 
     componentDidMount() {
-        client({method: 'GET', path: '/api/employees'}).done(response = > {
-            this.setState({employees: response.entity._embedded.employees});
+        client({method: 'GET', path: '/event'}).done(response => {
+            this.setState({events: response.entity._embedded.events});
     })
     }
 
     render() {
         return (
-            < EmployeeList;;
-    employees = {this.state.employees
-    }/>
-    )
+            <EventList events={this.state.events}/>
+        )
     }
 }
-// end::app[]
 
-// tag::employee-list[]
-class EmployeeList extends React.Component {
+class EventList extends React.Component {
     render() {
-        var employees = this.props.employees.map(employee = >
-            < Employee;
-        key = {employee._links.self.href
-    }
-        employee = {employee} / >;
-    )
+        var events = this.props.events.map(event =>
+            <Event key={event._links.self.href} event={event}/>
+        );
         return (
-            < table >
-                < tbody >
-                < tr >
-                    < th > First;
-                        Name
-                        <
-                        / th >
-                        < th > Last;
-                            Name
-                            <
-                            / th >
-                            < th > Description
-                                <
-                                / th >
-                                <
-                                / tr >
-                                {employees}
-                                <
-                                / tbody >
-                                <
-                                / table >;
-                                )
-                                }
-                                }
-                                // end::employee-list[]
+            <table className="table table-striped">
+                <tbody>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Room</th>
+                    <th>Track</th>
+                    <th>Speakers</th>
+                </tr>
+                {events}
+                </tbody>
+            </table>
+        )
+    }
+}
 
-                                // tag::employee[]
-                                class Employee extends React.Component {
-                                    render() {
-                                    return (
-                                    < tr >
-                                    < td > {this.props.employee.firstName
-                                    }</
-                                    td >
-                                    < td > {this.props.employee.lastName
-                                    }</
-                                    td >
-                                    < td > {this.props.employee.description
-                                    }</
-                                    td >
-                                    < / tr >;
-                                    )
-                                    }
-                                    }
-                                // end::employee[]
+class Event extends React.Component {
+    render() {
+        return (
+            <tr>
+                <td>{this.props.event.title}</td>
+                <td>{this.props.event.description}</td>
+                <td>{this.props.event.startTime}</td>
+                <td>{this.props.event.endTime}</td>
+                <td>{this.props.event.room}</td>
+                <td>{this.props.event.track}</td>
+                <td>{getSpeakers()}</td>
+            </tr>
+        )
+    }
+}
 
-                                // tag::render[]
-                                ReactDOM.render(
-                                < App / >,
-                                document.getElementById('react');
-)
-// end::render[]
+function getSpeakers() {
+    //TODO: get projections
+    return "speaker TODO";
+}
 
-;
+ReactDOM.render(
+    <App />,
+    document.getElementById('react')
+);
