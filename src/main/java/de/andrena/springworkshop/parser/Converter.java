@@ -10,9 +10,12 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Converter {
+    private static final Pattern NAME_REGEX = Pattern.compile("(.*)\\s+(.*)");
     private LocalDate date;
 
     public Converter(LocalDate date) {
@@ -63,10 +66,13 @@ public class Converter {
         return Collections.emptySet();
     }
 
-    private SpeakerKey parseName(String name) {
-        String[] nameParts = name.split(" ");
-        String lastname = nameParts[nameParts.length - 1];
-        String firstname = name.split(lastname)[0];
-        return new SpeakerKey(firstname, lastname);
+    SpeakerKey parseName(String name) {
+        Matcher matcher = NAME_REGEX.matcher(name);
+        if (matcher.matches()) {
+            String firstName = matcher.group(1);
+            String lastName = matcher.group(2);
+            return new SpeakerKey(firstName, lastName);
+        }
+        throw new IllegalArgumentException("could not parse name " + name);
     }
 }
