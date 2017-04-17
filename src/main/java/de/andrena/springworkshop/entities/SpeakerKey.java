@@ -2,12 +2,14 @@ package de.andrena.springworkshop.entities;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.hateoas.ResourceSupport;
 
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 
 @Embeddable
-public class SpeakerKey implements Serializable {
+public class SpeakerKey extends ResourceSupport implements Serializable {
     private String firstName;
     private String surname;
 
@@ -17,11 +19,6 @@ public class SpeakerKey implements Serializable {
     }
 
     public SpeakerKey() {
-    }
-
-    @Override
-    public String toString() {
-        return surname + "_" + firstName;
     }
 
     public String getSurname() {
@@ -60,6 +57,14 @@ public class SpeakerKey implements Serializable {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("firstName", firstName)
+                .append("surname", surname)
+                .toString();
     }
 
 }

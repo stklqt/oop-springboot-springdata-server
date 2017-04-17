@@ -13,10 +13,21 @@ import javax.persistence.Lob;
 public class Speaker {
 
 
+    @EmbeddedId
+    private SpeakerKey name;
+    private String company;
+    @Lob
+    @Column(length = 20971520)
+    private String biography;
+
     public Speaker(SpeakerKey name, String company, String biography) {
         this.name = name;
         this.company = company;
         this.biography = biography;
+    }
+
+    public Speaker() {
+
     }
 
     @Override
@@ -39,19 +50,7 @@ public class Speaker {
                 .toHashCode();
     }
 
-    @EmbeddedId
-    private SpeakerKey name;
-    private String company;
-    @Lob
-    @Column(length=20971520)
-    private String biography;
-
-    public Speaker() {
-
-    }
-
     @Override
-
     public String toString() {
         return new ToStringBuilder(this)
                 .append("name", name)
