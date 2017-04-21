@@ -13,6 +13,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -85,6 +86,14 @@ public class SpringworkshopApplicationTests {
         assertThat(singleResult.getBody().getContent().getTitle(), is(ANOTHER_TITLE));
         speakers = testRestTemplate.exchange(singleResult.getBody().getLink("speakers").getHref(), HttpMethod.GET, null, pagedSpeakersType);
         assertThat(speakers.getBody().getContent().stream().map(Resource::getContent).collect(Collectors.toList()), contains(speaker2));
+    }
+
+    @Test
+    public void name() throws Exception {
+        ParameterizedTypeReference<Resources<Resource<Event>>> type = new ParameterizedTypeReference<Resources<Resource<Event>>>() {
+        };
+        ResponseEntity<Resources<Resource<Event>>> exchange = testRestTemplate.exchange("/event", HttpMethod.GET, null, type);
+        System.out.println("exchange = " + exchange);
     }
 
     private void associateSpeakerWithEvent(URI eventLocation, URI speakerLink) {

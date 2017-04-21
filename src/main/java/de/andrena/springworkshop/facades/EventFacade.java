@@ -1,11 +1,12 @@
 package de.andrena.springworkshop.facades;
 
 import de.andrena.springworkshop.dto.EventDTO;
+import de.andrena.springworkshop.entities.Event;
 
 import java.util.List;
 
 public interface EventFacade {
-    List<EventDTO> getAllEvents();
+    List<Event> getAllEvents();
 
     List<EventDTO> getEventsWithDescriptionContaining(String description);
 
