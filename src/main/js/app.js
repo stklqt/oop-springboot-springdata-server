@@ -58,15 +58,29 @@ class Event extends React.Component {
                 <td>{this.props.event.endTime}</td>
                 <td>{this.props.event.room}</td>
                 <td>{this.props.event.track}</td>
-                <td>{getSpeakers()}</td>
+                <SpeakerList>{this.props.event.speakers}</SpeakerList>
             </tr>
         )
     }
 }
 
-function getSpeakers() {
-    //TODO: get projections
-    return "speaker TODO";
+class SpeakerList extends React.Component {
+    render() {
+        var speakers = this.props.children.map(speaker =>
+            <Speaker speaker={speaker}/>
+        );
+        return (
+            <td>{speakers}</td>
+        )
+    }
+}
+
+class Speaker extends React.Component {
+    render() {
+        return (
+            <div>{this.props.speaker.name.firstName} {this.props.speaker.name.surname}</div>
+        )
+    }
 }
 
 ReactDOM.render(
