@@ -16,7 +16,7 @@
     <tbody>
     <tr th:each="event : ${events}">
         <td th:text="${event.title}"></td>
-        <td th:text="${event.description}"></td>
+        <td th:utext="${event.description}"></td>
         <td th:text="${event.startTime}"></td>
         <td th:text="${event.endTime}"></td>
         <td th:text="${event.room}"></td>
