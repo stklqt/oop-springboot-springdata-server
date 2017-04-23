@@ -1,9 +1,6 @@
-package de.andrena.springworkshop;
+package de.andrena.springworkshop.parser;
 
 import de.andrena.springworkshop.entities.Event;
-import de.andrena.springworkshop.parser.Converter;
-import de.andrena.springworkshop.parser.Nodes;
-import de.andrena.springworkshop.parser.Parser;
 import org.junit.Test;
 
 import java.net.URL;
@@ -11,7 +8,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ParserTest {
