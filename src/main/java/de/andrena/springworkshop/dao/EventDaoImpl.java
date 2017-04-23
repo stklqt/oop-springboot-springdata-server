@@ -4,13 +4,9 @@ import de.andrena.springworkshop.dto.EventDTO;
 import de.andrena.springworkshop.dto.SpeakerDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -35,9 +31,6 @@ public class EventDaoImpl implements EventDao {
         final String path = "/event";
         final UriComponentsBuilder apiUrlBuilder = UriComponentsBuilder.newInstance();
         final String url = apiUrlBuilder.scheme(scheme).host(host).path(path).build().toString();
-
-        final HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaTypes.HAL_JSON);
 
         Resources<Resource<EventDTO>> eventResponse = sendRequest(url, new ParameterizedTypeReference<Resources<Resource<EventDTO>>>() {
         });
@@ -95,26 +88,6 @@ public class EventDaoImpl implements EventDao {
         });
         injectSpeakers(eventResponse);
         return mapToDTOList(eventResponse);
-    }
-
-    private <T> T get(final String url, final Class<T> entityClass) {
-        final HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        final HttpEntity<?> requestEntity = new HttpEntity<Void>(headers);
-        return sendRequest(url, HttpMethod.GET, requestEntity, entityClass);
-    }
-
-    private <T> T sendRequest(final String url, final HttpMethod method, final HttpEntity<?> requestEntity,
-                              final Class<T> responseEntityClass) {
-        T responseBody = null;
-
-        final ResponseEntity<T> response = halCapableRestTemplate.exchange(url, method, requestEntity, responseEntityClass);
-        if (response != null) {
-            responseBody = response.getBody();
-        }
-
-        return responseBody;
     }
 
 }
