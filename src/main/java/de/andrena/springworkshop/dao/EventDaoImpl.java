@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class EventDaoImpl implements EventDao {
 
     @Autowired
-    private RestTemplate restTemplate;
+    private RestTemplate halCapableRestTemplate;
 
     private String scheme = "http";
     private String host = "localhost:8090";
@@ -66,7 +66,7 @@ public class EventDaoImpl implements EventDao {
     }
 
     private <T> T sendRequest(String url, ParameterizedTypeReference<T> type) {
-        ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.GET, null, type);
+        ResponseEntity<T> response = halCapableRestTemplate.exchange(url, HttpMethod.GET, null, type);
         if (response != null) {
             return response.getBody();
         }
@@ -109,7 +109,7 @@ public class EventDaoImpl implements EventDao {
                               final Class<T> responseEntityClass) {
         T responseBody = null;
 
-        final ResponseEntity<T> response = restTemplate.exchange(url, method, requestEntity, responseEntityClass);
+        final ResponseEntity<T> response = halCapableRestTemplate.exchange(url, method, requestEntity, responseEntityClass);
         if (response != null) {
             responseBody = response.getBody();
         }
