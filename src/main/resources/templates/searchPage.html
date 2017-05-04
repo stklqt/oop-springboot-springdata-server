@@ -19,11 +19,11 @@
     <h1>Results: Searching the Agenda By Title...</h1>
     <hr/>
 
-    <div th:if="${events.empty}">
-        <p>Sorry no search results found. Try entering another keyword?</p>
+    <div th:if="${#lists.isEmpty(events)}">
+        <p>Sorry no search results found. Try entering another keyword? <a href="/agenda">go back</a></p>
     </div>
 
-    <div th:unless="${events.empty}">
+    <div th:unless="${#lists.isEmpty(events)}">
         <div th:replace="tableFragment :: table"></div>
     </div>
 </div>

@@ -26,7 +26,7 @@
     <hr/>
 
     <h2>All Events:</h2>
-    <div th:unless="${events.empty}">
+    <div th:unless="${#lists.isEmpty(events)}">
         <div th:replace="tableFragment :: table"></div>
     </div>
 
