@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.PagedResources;
@@ -21,19 +22,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 public class SpringworkshopApplicationTests {
 
@@ -52,30 +57,36 @@ public class SpringworkshopApplicationTests {
     @Test
     @DirtiesContext
     public void insertTestEvent() throws Exception {
-        ParameterizedTypeReference<PagedResources<Resource<InlineSpeakerImpl>>> pagedEventsWithSpeakerType = new ParameterizedTypeReference<PagedResources<Resource<InlineSpeakerImpl>>>() {
-        };
         ParameterizedTypeReference<Resource<Event>> eventType = new ParameterizedTypeReference<Resource<Event>>() {
         };
-        ParameterizedTypeReference<PagedResources<Resource<Speaker>>> pagedSpeakersType = new ParameterizedTypeReference<PagedResources<Resource<Speaker>>>() {
-        };
+		ParameterizedTypeReference<Resource<Speaker>> speakersType = new ParameterizedTypeReference<Resource<Speaker>>() {
+		};
+		ParameterizedTypeReference<PagedResources<Resource<Speaker>>> pagedSpeakersType = new ParameterizedTypeReference<PagedResources<Resource<Speaker>>>() {
+		};
+		ParameterizedTypeReference<PagedResources<Resource<InlineSpeakerImpl>>> pagedEventsWithSpeakerType = new ParameterizedTypeReference<PagedResources<Resource<InlineSpeakerImpl>>>() {
+		};
 
-        Speaker speaker = createSpeaker(new SpeakerKey("Alice", "Doe"));
-
-        URI speakerLocation = testRestTemplate.postForLocation("/speaker", speaker);
         Event event = createEvent(MY_EVENT);
         URI eventLocation = testRestTemplate.postForLocation("/event", event);
+		Speaker speaker = createSpeaker(new SpeakerKey("Alice", "Doe"));
+		URI createdSpeaker = testRestTemplate.postForLocation("/speaker", speaker);
+		associateSpeakerWithEvent(eventLocation.toString(), createdSpeaker.toString());
 
-        Speaker speaker2 = createSpeaker(new SpeakerKey("Bob", "Doe"));
-        URI speaker2Location = testRestTemplate.postForLocation("/speaker", speaker2);
+
         Event event2 = createEvent(ANOTHER_TITLE);
-        URI event2Location = testRestTemplate.postForLocation("/event", event2);
+		ResponseEntity<Resource<Event>> createdEvent2 = testRestTemplate.exchange("/event", HttpMethod.POST, new HttpEntity<>(event2), eventType, Collections.emptyMap());
+		Speaker speaker2 = createSpeaker(new SpeakerKey("Bob", "Doe"));
+		ResponseEntity<Resource<Speaker>> createdSpeaker2 = testRestTemplate.exchange("/speaker", HttpMethod.POST, new HttpEntity<>(speaker2), speakersType, Collections.emptyMap());
+		associateSpeakerWithEvent(createdEvent2.getBody().getLink("self").getHref(), createdSpeaker2.getBody().getLink("self").getHref());
 
-        associateSpeakerWithEvent(eventLocation, speakerLocation);
 
-        associateSpeakerWithEvent(event2Location, speaker2Location);
-
-        ResponseEntity<PagedResources<Resource<InlineSpeakerImpl>>> pagedResult = testRestTemplate.exchange("/event", HttpMethod.GET, null, pagedEventsWithSpeakerType);
-        assertThat(pagedResult.getBody().getContent(), hasSize(2));
+		String eventsWithInlineSpeakersUrl = UriComponentsBuilder.fromPath("/event").queryParam("projection", "inlineSpeaker").toUriString();
+		ResponseEntity<PagedResources<Resource<InlineSpeakerImpl>>> pagedResult = testRestTemplate.exchange(eventsWithInlineSpeakersUrl, HttpMethod.GET, null, pagedEventsWithSpeakerType);
+		Collection<Resource<InlineSpeakerImpl>> eventsWithSpeakers = pagedResult.getBody().getContent();
+		assertThat(eventsWithSpeakers, hasSize(2));
+		eventsWithSpeakers.forEach(
+				inlineSpeakerResource -> assertThat(inlineSpeakerResource.getContent().getSpeakers(), is(not(empty())))
+		);
 
         ResponseEntity<Resource<Event>> singleResult = testRestTemplate.exchange("/event/1", HttpMethod.GET, null, eventType);
         assertThat(singleResult.getBody().getContent().getTitle(), is(MY_EVENT));
@@ -90,12 +101,12 @@ public class SpringworkshopApplicationTests {
         assertThat(speakers.getBody().getContent().stream().map(Resource::getContent).collect(Collectors.toList()), contains(speaker2));
     }
 
-    private void associateSpeakerWithEvent(URI eventLocation, URI speakerLink) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(new MediaType("text", "uri-list"));
+	private void associateSpeakerWithEvent(String eventLocation, String speakerLink) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(new MediaType("text", "uri-list"));
 
-        testRestTemplate.postForEntity(eventLocation + "/speakers", new HttpEntity<>(speakerLink.toString(), headers), String.class);
-    }
+		testRestTemplate.postForEntity(eventLocation + "/speakers", new HttpEntity<>(speakerLink, headers), String.class);
+	}
 
     @Test
     @DirtiesContext
