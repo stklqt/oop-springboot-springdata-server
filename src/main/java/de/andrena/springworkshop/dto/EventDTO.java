@@ -5,19 +5,19 @@ import java.util.List;
 
 public class EventDTO {
 
-    public String title;
+    private String title;
 
-    public String description;
+    private String description;
 
-    public LocalDateTime startTime;
+    private LocalDateTime startTime;
 
-    public LocalDateTime endTime;
+    private LocalDateTime endTime;
 
-    public List<SpeakerDTO> speakers;
+    private List<SpeakerDTO> speakers;
 
-    public String track;
+    private String track;
 
-    public String room;
+    private String room;
 
     public String getTrack() {
         return track;

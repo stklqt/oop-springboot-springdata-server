@@ -78,7 +78,7 @@ class SpeakerList extends React.Component {
 class Speaker extends React.Component {
     render() {
         return (
-            <div>{this.props.speaker.name.firstName} {this.props.speaker.name.surname}</div>
+            <div>{this.props.speaker.firstName} {this.props.speaker.lastName}</div>
         )
     }
 }

@@ -16,12 +16,11 @@ import java.util.Set;
 public class Event {
 
     @Id
-    @GeneratedValue
-
-    private Integer id;
-    private String title;
-    @Lob
-    @Column(length=20971520)
+	@GeneratedValue()
+	private Integer id;
+	private String title;
+	@Lob
+	@Column(length=20971520)
     private String description;
     private LocalDateTime startTime;
     private LocalDateTime endTime;

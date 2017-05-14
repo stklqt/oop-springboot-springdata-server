@@ -1,6 +1,5 @@
 package de.andrena.springworkshop.parser;
 
-import de.andrena.springworkshop.entities.SpeakerKey;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -13,8 +12,13 @@ public class ConverterTest {
     private Converter converter = new Converter(LocalDate.now());
 
     @Test
-    public void parseName() throws Exception {
-        assertThat(converter.parseName("John Doe"), is(new SpeakerKey("John", "Doe")));
+    public void parseFirstName() throws Exception {
+        assertThat(converter.parseFirstName("John Doe"), is("John"));
+    }
+
+    @Test
+    public void parseLastName() throws Exception {
+        assertThat(converter.parseLastName("John Doe"), is("Doe"));
     }
 
 }

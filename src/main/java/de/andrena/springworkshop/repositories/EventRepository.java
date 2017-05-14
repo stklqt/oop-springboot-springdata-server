@@ -8,7 +8,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@RepositoryRestResource(path = "event")
+@RepositoryRestResource
 public interface EventRepository extends CrudRepository<Event, Integer> {
     List<Event> findByTitleContaining(@Param("title") String title);
 

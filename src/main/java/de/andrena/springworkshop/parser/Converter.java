@@ -2,7 +2,6 @@ package de.andrena.springworkshop.parser;
 
 import de.andrena.springworkshop.entities.Event;
 import de.andrena.springworkshop.entities.Speaker;
-import de.andrena.springworkshop.entities.SpeakerKey;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
@@ -58,7 +57,7 @@ public class Converter {
             if (nodes.referent.nodes != null) {
                 if (nodes.referent.nodes.referents != null) {
                     return nodes.referent.nodes.referents.stream().map(referentElement
-                            -> new Speaker(parseName(referentElement.name), referentElement.company, referentElement.bio)).collect(Collectors.toSet());
+							-> new Speaker(parseFirstName(referentElement.name), parseLastName(referentElement.name), referentElement.company, referentElement.bio)).collect(Collectors.toSet());
 
                 }
             }
@@ -66,13 +65,20 @@ public class Converter {
         return Collections.emptySet();
     }
 
-    SpeakerKey parseName(String name) {
-        Matcher matcher = NAME_REGEX.matcher(name);
-        if (matcher.matches()) {
-            String firstName = matcher.group(1);
-            String lastName = matcher.group(2);
-            return new SpeakerKey(firstName, lastName);
-        }
-        throw new IllegalArgumentException("could not parse name " + name);
-    }
+	String parseFirstName(String name) {
+		Matcher matcher = NAME_REGEX.matcher(name);
+		if (matcher.matches()) {
+			return matcher.group(1);
+		}
+		throw new IllegalArgumentException("could not parse name " + name);
+	}
+
+	String parseLastName(String name) {
+		Matcher matcher = NAME_REGEX.matcher(name);
+		if (matcher.matches()) {
+			return matcher.group(2);
+		}
+		throw new IllegalArgumentException("could not parse name " + name);
+	}
+
 }

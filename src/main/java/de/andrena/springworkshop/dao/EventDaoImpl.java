@@ -12,82 +12,85 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 public class EventDaoImpl implements EventDao {
 
-    @Autowired
-    private RestTemplate halCapableRestTemplate;
+	private final RestTemplate halCapableRestTemplate;
 
-    private String scheme = "http";
-    private String host = "localhost:8090";
+	private String scheme = "http";
+	private String host = "localhost:8090";
+
+	@Autowired
+	public EventDaoImpl(RestTemplate halCapableRestTemplate) {
+		this.halCapableRestTemplate = halCapableRestTemplate;
+	}
 
 
-    @Override
-    public List<EventDTO> getAllEvents() {
-        final String path = "/event";
-        final UriComponentsBuilder apiUrlBuilder = UriComponentsBuilder.newInstance();
-        final String url = apiUrlBuilder.scheme(scheme).host(host).path(path).build().toString();
+	@Override
+	public List<EventDTO> getAllEvents() {
+		final String path = "/events";
+		final UriComponentsBuilder apiUrlBuilder = UriComponentsBuilder.newInstance();
+		final String url = apiUrlBuilder.scheme(scheme).host(host).path(path).build().toString();
 
-        Resources<Resource<EventDTO>> eventResponse = sendRequest(url, new ParameterizedTypeReference<Resources<Resource<EventDTO>>>() {
-        });
+		Resources<Resource<EventDTO>> eventResponse = sendRequest(url, new ParameterizedTypeReference<Resources<Resource<EventDTO>>>() {
+		});
 
-        injectSpeakers(eventResponse);
-        return mapToDTOList(eventResponse);
-    }
+		injectSpeakers(eventResponse);
+		return mapToDTOList(eventResponse);
+	}
 
-    private List<EventDTO> mapToDTOList(Resources<Resource<EventDTO>> eventResponse) {
-        return eventResponse.getContent().stream().map(eventDTOResource -> eventDTOResource.getContent()).collect(Collectors.toList());
-    }
+	private List<EventDTO> mapToDTOList(Resources<Resource<EventDTO>> eventResponse) {
+		return eventResponse.getContent().stream().map(Resource::getContent).collect(Collectors.toList());
+	}
 
-    private void injectSpeakers(Resources<Resource<EventDTO>> eventResponse) {
-        if (eventResponse != null) {
-            ParameterizedTypeReference<Resources<Resource<SpeakerDTO>>> speakerType = new ParameterizedTypeReference<Resources<Resource<SpeakerDTO>>>() {
-            };
-            for (Resource<EventDTO> event : eventResponse) {
-                String speakersUrl = event.getLink("speakers").getHref();
-                Collection<Resource<SpeakerDTO>> speakers = sendRequest(speakersUrl, speakerType).getContent();
+	private void injectSpeakers(Resources<Resource<EventDTO>> eventResponse) {
+		if (eventResponse != null) {
+			ParameterizedTypeReference<Resources<Resource<SpeakerDTO>>> speakerType = new ParameterizedTypeReference<Resources<Resource<SpeakerDTO>>>() {
+			};
+			for (Resource<EventDTO> event : eventResponse) {
+				String speakersUrl = event.getLink("speakers").getHref();
+				Resources<Resource<SpeakerDTO>> speakerResources = sendRequest(speakersUrl, speakerType);
+				if (speakerResources != null) {
+					List<SpeakerDTO> speakerDTOList = speakerResources.getContent().stream().map(Resource::getContent).collect(Collectors.toList());
+					event.getContent().setSpeakers(speakerDTOList);
+				}
+			}
+		}
+	}
 
-                List<SpeakerDTO> speakerDTOList = speakers.stream().map(speakerDTOResource -> speakerDTOResource.getContent()).collect(Collectors.toList());
+	private <T> T sendRequest(String url, ParameterizedTypeReference<T> type) {
+		ResponseEntity<T> response = halCapableRestTemplate.exchange(url, HttpMethod.GET, null, type);
+		if (response != null) {
+			return response.getBody();
+		}
+		return null;
+	}
 
-                event.getContent().setSpeakers(speakerDTOList);
-            }
-        }
-    }
+	@Override
+	public List<EventDTO> getEventsWithTitleContaining(String title) {
+		final String path = "/events/search/findByTitleContaining";
+		final UriComponentsBuilder apiUrlBuilder = UriComponentsBuilder.newInstance();
+		final String url = apiUrlBuilder.scheme(scheme).host(host).path(path).queryParam("title", title).build().toString();
 
-    private <T> T sendRequest(String url, ParameterizedTypeReference<T> type) {
-        ResponseEntity<T> response = halCapableRestTemplate.exchange(url, HttpMethod.GET, null, type);
-        if (response != null) {
-            return response.getBody();
-        }
-        return null;
-    }
+		Resources<Resource<EventDTO>> eventResponse = sendRequest(url, new ParameterizedTypeReference<Resources<Resource<EventDTO>>>() {
+		});
+		injectSpeakers(eventResponse);
+		return mapToDTOList(eventResponse);
+	}
 
-    @Override
-    public List<EventDTO> getEventsWithTitleContaining(String title) {
-        final String path = "/event/search/findByTitleContaining";
-        final UriComponentsBuilder apiUrlBuilder = UriComponentsBuilder.newInstance();
-        final String url = apiUrlBuilder.scheme(scheme).host(host).path(path).queryParam("title", title).build().toString();
+	@Override
+	public List<EventDTO> getEventsWithDescriptionContaining(String description) {
+		final String path = "/events/search/findByDescriptionContaining";
+		final UriComponentsBuilder apiUrlBuilder = UriComponentsBuilder.newInstance();
+		final String url = apiUrlBuilder.scheme(scheme).host(host).path(path).queryParam("description", description).build().toString();
 
-        Resources<Resource<EventDTO>> eventResponse = sendRequest(url, new ParameterizedTypeReference<Resources<Resource<EventDTO>>>() {
-        });
-        injectSpeakers(eventResponse);
-        return mapToDTOList(eventResponse);
-    }
-
-    @Override
-    public List<EventDTO> getEventsWithDescriptionContaining(String description) {
-        final String path = "/event/search/findByDescriptionContaining";
-        final UriComponentsBuilder apiUrlBuilder = UriComponentsBuilder.newInstance();
-        final String url = apiUrlBuilder.scheme(scheme).host(host).path(path).queryParam("description", description).build().toString();
-
-        Resources<Resource<EventDTO>> eventResponse = sendRequest(url, new ParameterizedTypeReference<Resources<Resource<EventDTO>>>() {
-        });
-        injectSpeakers(eventResponse);
-        return mapToDTOList(eventResponse);
-    }
+		Resources<Resource<EventDTO>> eventResponse = sendRequest(url, new ParameterizedTypeReference<Resources<Resource<EventDTO>>>() {
+		});
+		injectSpeakers(eventResponse);
+		return mapToDTOList(eventResponse);
+	}
 
 }
