@@ -12,7 +12,7 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        client({method: 'GET', path: '/event'}).done(response => {
+        client({method: 'GET', path: '/events?projection=inlineSpeaker'}).done(response => {
             this.setState({events: response.entity._embedded.events});
     })
     }
