@@ -4,6 +4,7 @@ import de.andrena.springworkshop.entities.Event;
 import de.andrena.springworkshop.entities.Speaker;
 import de.andrena.springworkshop.repositories.EventRepository;
 import de.andrena.springworkshop.repositories.SpeakerRepository;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,19 +44,53 @@ public class SpringworkshopApplicationTests {
 
 	private static final String COMPANY = "company";
 	private static final String ANOTHER_TITLE = "another title";
-	private static final String MY_EVENT = "my event";
+	private static final String EVENT_TITLE = "my event";
+
+	private Speaker alice;
+	private Speaker bob;
+	private Event event;
+	private Event anotherEvent;
 
 	@Autowired
 	private TestRestTemplate testRestTemplate;
 
 	@Autowired
 	private EventRepository eventRepository;
+
 	@Autowired
 	private SpeakerRepository speakerRepository;
 
+	@Before
+	public void setup(){
+		alice = createSpeaker("Alice", "Doe", 1);
+		bob = createSpeaker("Bob", "Smith", 2);
+		event = createEvent(EVENT_TITLE);
+		anotherEvent = createEvent(ANOTHER_TITLE);
+	}
+
+	@Test
+	@DirtiesContext // Closes context after test and removes it from cache in order to have a fresh test environment
+	public void springDataRepository_savesEventsWithSpeakers() throws Exception {
+
+		speakerRepository.save(alice);
+		speakerRepository.save(bob);
+
+		event.setSpeakers(Collections.singleton(alice));
+		anotherEvent.setSpeakers(Collections.singleton(bob));
+
+		eventRepository.save(event);
+		eventRepository.save(anotherEvent);
+
+		Event one = eventRepository.findOne(event.getId());
+		Event two = eventRepository.findOne(anotherEvent.getId());
+		assertThat(one.getSpeakers(), contains(alice));
+		assertThat(two.getSpeakers(), contains(bob));
+	}
+
 	@Test
 	@DirtiesContext
-	public void insertTestEvent() throws Exception {
+	public void endToEndTest_usingREST() throws Exception {
+
 		ParameterizedTypeReference<Resource<Event>> eventType = new ParameterizedTypeReference<Resource<Event>>() {
 		};
 		ParameterizedTypeReference<Resource<Speaker>> speakersType = new ParameterizedTypeReference<Resource<Speaker>>() {
@@ -65,19 +100,13 @@ public class SpringworkshopApplicationTests {
 		ParameterizedTypeReference<PagedResources<Resource<InlineSpeakerImpl>>> pagedEventsWithSpeakerType = new ParameterizedTypeReference<PagedResources<Resource<InlineSpeakerImpl>>>() {
 		};
 
-		Event event = createEvent(MY_EVENT);
 		URI eventLocation = testRestTemplate.postForLocation("/events", event);
-		Speaker speaker = createSpeaker("Alice", "Doe", 1);
-		URI createdSpeaker = testRestTemplate.postForLocation("/speakers", speaker);
-		associateSpeakerWithEvent(eventLocation.toString(), createdSpeaker.toString());
+		URI aliceLocation = testRestTemplate.postForLocation("/speakers", alice);
+		associateSpeakerWithEvent(eventLocation.toString(), aliceLocation.toString());
 
-
-		Event event2 = createEvent(ANOTHER_TITLE);
-		ResponseEntity<Resource<Event>> createdEvent2 = testRestTemplate.exchange("/events", HttpMethod.POST, new HttpEntity<>(event2), eventType, Collections.emptyMap());
-		Speaker speaker2 = createSpeaker("Bob", "Doe", 2);
-		ResponseEntity<Resource<Speaker>> createdSpeaker2 = testRestTemplate.exchange("/speakers", HttpMethod.POST, new HttpEntity<>(speaker2), speakersType, Collections.emptyMap());
-		associateSpeakerWithEvent(createdEvent2.getBody().getLink("self").getHref(), createdSpeaker2.getBody().getLink("self").getHref());
-
+		ResponseEntity<Resource<Event>> anotherEventResponse = testRestTemplate.exchange("/events", HttpMethod.POST, new HttpEntity<>(anotherEvent), eventType, Collections.emptyMap());
+		ResponseEntity<Resource<Speaker>> bobResponse = testRestTemplate.exchange("/speakers", HttpMethod.POST, new HttpEntity<>(bob), speakersType, Collections.emptyMap());
+		associateSpeakerWithEvent(anotherEventResponse.getBody().getLink("self").getHref(), bobResponse.getBody().getLink("self").getHref());
 
 		String eventsWithInlineSpeakersUrl = UriComponentsBuilder.fromPath("/events").queryParam("projection", "inlineSpeaker").toUriString();
 		ResponseEntity<PagedResources<Resource<InlineSpeakerImpl>>> pagedResult = testRestTemplate.exchange(eventsWithInlineSpeakersUrl, HttpMethod.GET, null, pagedEventsWithSpeakerType);
@@ -88,11 +117,10 @@ public class SpringworkshopApplicationTests {
 		);
 
 		ResponseEntity<Resource<Event>> singleResult = testRestTemplate.exchange("/events/1", HttpMethod.GET, null, eventType);
-		assertThat(singleResult.getBody().getContent().getTitle(), is(MY_EVENT));
+		assertThat(singleResult.getBody().getContent().getTitle(), is(EVENT_TITLE));
 
 		ResponseEntity<PagedResources<Resource<Speaker>>> speakers = testRestTemplate.exchange(singleResult.getBody().getLink("speakers").getHref(), HttpMethod.GET, null, pagedSpeakersType);
 		assertThat(speakers.getBody().getContent().stream().map(Resource::getContent).map(Speaker::getFirstName).collect(Collectors.toList()), contains("Alice"));
-
 
 		singleResult = testRestTemplate.exchange("/events/2", HttpMethod.GET, null, eventType);
 		assertThat(singleResult.getBody().getContent().getTitle(), is(ANOTHER_TITLE));
@@ -105,25 +133,6 @@ public class SpringworkshopApplicationTests {
 		headers.setContentType(new MediaType("text", "uri-list"));
 
 		testRestTemplate.postForEntity(eventLocation + "/speakers", new HttpEntity<>(speakerLink, headers), String.class);
-	}
-
-	@Test
-	@DirtiesContext
-	public void save() throws Exception {
-		Speaker speaker = createSpeaker("John", "Doe", 1);
-		speakerRepository.save(speaker);
-		Event event = createEvent(MY_EVENT);
-		event.setSpeakers(Collections.singleton(speaker));
-		Event event2 = createEvent(ANOTHER_TITLE);
-		event2.setSpeakers(Collections.singleton(speaker));
-
-		eventRepository.save(event);
-		eventRepository.save(event2);
-
-		Event one = eventRepository.findOne(event.getId());
-		Event two = eventRepository.findOne(event2.getId());
-		assertThat(one.getSpeakers(), contains(speaker));
-		assertThat(two.getSpeakers(), contains(speaker));
 	}
 
 	private Event createEvent(String title) {
