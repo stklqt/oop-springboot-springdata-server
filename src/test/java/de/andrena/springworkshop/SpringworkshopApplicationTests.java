@@ -25,7 +25,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -42,9 +41,9 @@ import static org.junit.Assert.assertThat;
 @ActiveProfiles("test")
 public class SpringworkshopApplicationTests {
 
-	private static final String COMPANY = "company";
 	private static final String ANOTHER_TITLE = "another title";
 	private static final String EVENT_TITLE = "my event";
+	private final SpringworkshopTestUtils springworkshopTestUtils = new SpringworkshopTestUtils();
 
 	private Speaker alice;
 	private Speaker bob;
@@ -62,10 +61,10 @@ public class SpringworkshopApplicationTests {
 
 	@Before
 	public void setup(){
-		alice = createSpeaker("Alice", "Doe", 1);
-		bob = createSpeaker("Bob", "Smith", 2);
-		event = createEvent(EVENT_TITLE);
-		anotherEvent = createEvent(ANOTHER_TITLE);
+		alice = SpringworkshopTestUtils.createSpeaker("Alice", "Doe", 1);
+		bob = SpringworkshopTestUtils.createSpeaker("Bob", "Smith", 2);
+		event = SpringworkshopTestUtils.createEvent(EVENT_TITLE);
+		anotherEvent = SpringworkshopTestUtils.createEvent(ANOTHER_TITLE);
 	}
 
 	@Test
@@ -134,22 +133,4 @@ public class SpringworkshopApplicationTests {
 
 		testRestTemplate.postForEntity(eventLocation + "/speakers", new HttpEntity<>(speakerLink, headers), String.class);
 	}
-
-	private Event createEvent(String title) {
-		Event event = new Event();
-		event.setTitle(title);
-		event.setStartTime(LocalDateTime.now());
-		event.setEndTime(LocalDateTime.now().plusHours(1));
-		return event;
-	}
-
-	private Speaker createSpeaker(String firstName, String lastName, int id) {
-		Speaker speaker = new Speaker();
-		speaker.setCompany(COMPANY);
-		speaker.setFirstName(firstName);
-		speaker.setLastName(lastName);
-		speaker.setId(id);
-		return speaker;
-	}
-
 }
