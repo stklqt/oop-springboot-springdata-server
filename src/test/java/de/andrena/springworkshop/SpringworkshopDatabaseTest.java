@@ -11,8 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.iterableWithSize;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 // Much faster than the tests in SpringworkshopApplicationTests - @DataJpaTest causes only the configurations relevant to JPA to be applied
@@ -22,24 +21,13 @@ import static org.junit.Assert.assertThat;
 public class SpringworkshopDatabaseTest {
 
     private static final String TITLE = "event title";
-    public static final String ANOTHER_TITLE = "another title";
+    private static final String ANOTHER_TITLE = "another title";
 
     @Autowired
     private EventRepository eventRepository;
 
     @Autowired
     private TestEntityManager entityManager;
-
-    @Test
-    public void findsEventByTitle() {
-        Event event = SpringworkshopTestUtils.createEvent(TITLE);
-        entityManager.persist(event);
-        entityManager.flush();
-
-        List<Event> events = eventRepository.findByTitleContaining(TITLE);
-        assertThat(events.size(), is(1));
-        assertThat(events.get(0).getTitle(), is(TITLE));
-    }
 
     @Test
     public void showsThatTestsAreIndependent() throws Exception {
@@ -51,6 +39,19 @@ public class SpringworkshopDatabaseTest {
 
         Iterable<Event> events = eventRepository.findAll();
         assertThat(events, iterableWithSize(2));
+    }
 
+    // Übung! Nachdem die Suche implementiert ist
+    @Test
+    public void searchEventsByTitle() throws Exception {
+        Event event = SpringworkshopTestUtils.createEvent(TITLE);
+        Event anotherEvent = SpringworkshopTestUtils.createEvent(ANOTHER_TITLE);
+        entityManager.persist(event);
+        entityManager.persist(anotherEvent);
+        entityManager.flush();
+
+        List<Event> events = eventRepository.findByTitleContaining("event");
+        assertThat(events, hasSize(1));
+        assertThat(events, hasItem(event));
     }
 }

@@ -38,12 +38,10 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
 public class SpringworkshopApplicationTests {
 
 	private static final String ANOTHER_TITLE = "another title";
 	private static final String EVENT_TITLE = "my event";
-	private final SpringworkshopTestUtils springworkshopTestUtils = new SpringworkshopTestUtils();
 
 	private Speaker alice;
 	private Speaker bob;
@@ -86,6 +84,8 @@ public class SpringworkshopApplicationTests {
 		assertThat(two.getSpeakers(), contains(bob));
 	}
 
+	// Zeigen: sehr kompliziert, großes Aufwand, deshalb ->
+	// DataJPA tests, oder ein (fast) komplettes Test mit einige Komponenten weggemockt
 	@Test
 	@DirtiesContext
 	public void endToEndTest_usingREST() throws Exception {
