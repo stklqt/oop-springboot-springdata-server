@@ -9,8 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +45,7 @@ public class SpringworkshopApplicationTests {
 	public void insertTestEvent() throws Exception {
 		ParameterizedTypeReference<Resource<Event>> eventType = new ParameterizedTypeReference<Resource<Event>>() {
 		};
-		ParameterizedTypeReference<PagedResources<Resource<Event>>> pagedEventsType = new ParameterizedTypeReference<PagedResources<Resource<Event>>>() {
+		ParameterizedTypeReference<Resources<Resource<Event>>> eventsType = new ParameterizedTypeReference<Resources<Resource<Event>>>() {
 		};
 
 		Event event = createEvent(MY_EVENT);
@@ -54,8 +54,8 @@ public class SpringworkshopApplicationTests {
 		Event event2 = createEvent(ANOTHER_TITLE);
 		testRestTemplate.exchange("/events", HttpMethod.POST, new HttpEntity<>(event2), eventType, Collections.emptyMap());
 
-		ResponseEntity<PagedResources<Resource<Event>>> pagedResult = testRestTemplate.exchange("/events", HttpMethod.GET, null, pagedEventsType);
-		Collection<Resource<Event>> eventsWithSpeakers = pagedResult.getBody().getContent();
+		ResponseEntity<Resources<Resource<Event>>> result = testRestTemplate.exchange("/events", HttpMethod.GET, null, eventsType);
+		Collection<Resource<Event>> eventsWithSpeakers = result.getBody().getContent();
 		assertThat(eventsWithSpeakers, hasSize(2));
 
 		ResponseEntity<Resource<Event>> singleResult = testRestTemplate.exchange("/events/1", HttpMethod.GET, null, eventType);
