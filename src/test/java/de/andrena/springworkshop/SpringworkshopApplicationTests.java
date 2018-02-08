@@ -1,7 +1,6 @@
 package de.andrena.springworkshop;
 
 import de.andrena.springworkshop.entities.Event;
-import de.andrena.springworkshop.entities.Speaker;
 import de.andrena.springworkshop.repositories.EventRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,26 +12,18 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.stream.Collectors;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -61,16 +52,16 @@ public class SpringworkshopApplicationTests {
 		testRestTemplate.postForLocation("/events", event);
 
 		Event event2 = createEvent(ANOTHER_TITLE);
-		testRestTemplate.exchange("/event", HttpMethod.POST, new HttpEntity<>(event2), eventType, Collections.emptyMap());
+		testRestTemplate.exchange("/events", HttpMethod.POST, new HttpEntity<>(event2), eventType, Collections.emptyMap());
 
-		ResponseEntity<PagedResources<Resource<Event>>> pagedResult = testRestTemplate.exchange("/event", HttpMethod.GET, null, pagedEventsType);
+		ResponseEntity<PagedResources<Resource<Event>>> pagedResult = testRestTemplate.exchange("/events", HttpMethod.GET, null, pagedEventsType);
 		Collection<Resource<Event>> eventsWithSpeakers = pagedResult.getBody().getContent();
 		assertThat(eventsWithSpeakers, hasSize(2));
 
-		ResponseEntity<Resource<Event>> singleResult = testRestTemplate.exchange("/event/1", HttpMethod.GET, null, eventType);
+		ResponseEntity<Resource<Event>> singleResult = testRestTemplate.exchange("/events/1", HttpMethod.GET, null, eventType);
 		assertThat(singleResult.getBody().getContent().getTitle(), is(MY_EVENT));
 
-		singleResult = testRestTemplate.exchange("/event/2", HttpMethod.GET, null, eventType);
+		singleResult = testRestTemplate.exchange("/events/2", HttpMethod.GET, null, eventType);
 		assertThat(singleResult.getBody().getContent().getTitle(), is(ANOTHER_TITLE));
 	}
 
