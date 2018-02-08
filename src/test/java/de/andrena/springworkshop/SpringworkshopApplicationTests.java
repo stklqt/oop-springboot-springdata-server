@@ -66,20 +66,20 @@ public class SpringworkshopApplicationTests {
 		};
 
 		Event event = createEvent(MY_EVENT);
-		URI eventLocation = testRestTemplate.postForLocation("/events", event);
+		URI eventLocation = testRestTemplate.postForLocation("/talks", event);
 		Speaker speaker = createSpeaker("Alice", "Doe", 1);
-		URI createdSpeaker = testRestTemplate.postForLocation("/speakers", speaker);
+		URI createdSpeaker = testRestTemplate.postForLocation("/participants", speaker);
 		associateSpeakerWithEvent(eventLocation.toString(), createdSpeaker.toString());
 
 
 		Event event2 = createEvent(ANOTHER_TITLE);
-		ResponseEntity<Resource<Event>> createdEvent2 = testRestTemplate.exchange("/events", HttpMethod.POST, new HttpEntity<>(event2), eventType, Collections.emptyMap());
+		ResponseEntity<Resource<Event>> createdEvent2 = testRestTemplate.exchange("/talks", HttpMethod.POST, new HttpEntity<>(event2), eventType, Collections.emptyMap());
 		Speaker speaker2 = createSpeaker("Bob", "Doe", 2);
-		ResponseEntity<Resource<Speaker>> createdSpeaker2 = testRestTemplate.exchange("/speakers", HttpMethod.POST, new HttpEntity<>(speaker2), speakersType, Collections.emptyMap());
+		ResponseEntity<Resource<Speaker>> createdSpeaker2 = testRestTemplate.exchange("/participants", HttpMethod.POST, new HttpEntity<>(speaker2), speakersType, Collections.emptyMap());
 		associateSpeakerWithEvent(createdEvent2.getBody().getLink("self").getHref(), createdSpeaker2.getBody().getLink("self").getHref());
 
 
-		String eventsWithInlineSpeakersUrl = UriComponentsBuilder.fromPath("/events").queryParam("projection", "inlineSpeaker").toUriString();
+		String eventsWithInlineSpeakersUrl = UriComponentsBuilder.fromPath("/talks").queryParam("projection", "inlineSpeaker").toUriString();
 		ResponseEntity<PagedResources<Resource<InlineSpeakerImpl>>> pagedResult = testRestTemplate.exchange(eventsWithInlineSpeakersUrl, HttpMethod.GET, null, pagedEventsWithSpeakerType);
 		Collection<Resource<InlineSpeakerImpl>> eventsWithSpeakers = pagedResult.getBody().getContent();
 		assertThat(eventsWithSpeakers, hasSize(2));
@@ -87,14 +87,14 @@ public class SpringworkshopApplicationTests {
 				inlineSpeakerResource -> assertThat(inlineSpeakerResource.getContent().getSpeakers(), is(not(empty())))
 		);
 
-		ResponseEntity<Resource<Event>> singleResult = testRestTemplate.exchange("/events/1", HttpMethod.GET, null, eventType);
+		ResponseEntity<Resource<Event>> singleResult = testRestTemplate.exchange("/talks/1", HttpMethod.GET, null, eventType);
 		assertThat(singleResult.getBody().getContent().getTitle(), is(MY_EVENT));
 
 		ResponseEntity<PagedResources<Resource<Speaker>>> speakers = testRestTemplate.exchange(singleResult.getBody().getLink("speakers").getHref(), HttpMethod.GET, null, pagedSpeakersType);
 		assertThat(speakers.getBody().getContent().stream().map(Resource::getContent).map(Speaker::getFirstName).collect(Collectors.toList()), contains("Alice"));
 
 
-		singleResult = testRestTemplate.exchange("/events/2", HttpMethod.GET, null, eventType);
+		singleResult = testRestTemplate.exchange("/talks/2", HttpMethod.GET, null, eventType);
 		assertThat(singleResult.getBody().getContent().getTitle(), is(ANOTHER_TITLE));
 		speakers = testRestTemplate.exchange(singleResult.getBody().getLink("speakers").getHref(), HttpMethod.GET, null, pagedSpeakersType);
 		assertThat(speakers.getBody().getContent().stream().map(Resource::getContent).map(Speaker::getFirstName).collect(Collectors.toList()), contains("Bob"));
@@ -104,7 +104,7 @@ public class SpringworkshopApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(new MediaType("text", "uri-list"));
 
-		testRestTemplate.postForEntity(eventLocation + "/speakers", new HttpEntity<>(speakerLink, headers), String.class);
+		testRestTemplate.postForEntity(eventLocation + "/participants", new HttpEntity<>(speakerLink, headers), String.class);
 	}
 
 	@Test
