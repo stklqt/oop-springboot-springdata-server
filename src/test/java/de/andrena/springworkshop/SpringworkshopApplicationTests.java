@@ -7,6 +7,7 @@ import de.andrena.springworkshop.repositories.SpeakerRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -52,6 +53,9 @@ public class SpringworkshopApplicationTests {
 	private EventRepository eventRepository;
 	@Autowired
 	private SpeakerRepository speakerRepository;
+
+	@LocalServerPort
+	private int port;
 
 	@Test
 	@DirtiesContext
@@ -104,7 +108,7 @@ public class SpringworkshopApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(new MediaType("text", "uri-list"));
 
-		testRestTemplate.postForEntity(eventLocation + "/participants", new HttpEntity<>(speakerLink, headers), String.class);
+		testRestTemplate.postForEntity(eventLocation + "/speakers", new HttpEntity<>(speakerLink, headers), String.class);
 	}
 
 	@Test
