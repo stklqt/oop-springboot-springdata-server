@@ -4,6 +4,6 @@ import de.andrena.springworkshop.entities.Speaker;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-@RepositoryRestResource(path = "participants")
+@RepositoryRestResource
 public interface SpeakerRepository extends CrudRepository<Speaker, Integer> {
 }

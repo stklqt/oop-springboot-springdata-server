@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @CrossOrigin
-@RepositoryRestResource(path = "talks")
+@RepositoryRestResource
 public interface EventRepository extends PagingAndSortingRepository<Event, Integer> { //CrudRepository<Event, Integer> {
 	@RestResource(path = "byTitle")
 	Page<Event> findByTitleContaining(@Param("title") String title, Pageable pageable);
