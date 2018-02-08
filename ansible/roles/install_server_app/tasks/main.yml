@@ -1,3 +1,0 @@
----
-- include_vars: "server.yml"
-- include: "install.yml"
