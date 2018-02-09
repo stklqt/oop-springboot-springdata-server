@@ -37,11 +37,6 @@ public class SpringworkshopDatabaseTest {
 
     @Test
     public void searchAllEvents() {
-
-
-
-
-        
         //given
         Event event = getEvent("Testtitle");
 

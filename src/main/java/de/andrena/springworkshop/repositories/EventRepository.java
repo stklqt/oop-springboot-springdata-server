@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import java.util.List;
 
 @CrossOrigin
-@RepositoryRestResource
+@RepositoryRestResource //To Test some URL foo (path = "somepath")
 public interface EventRepository extends CrudRepository<Event, Integer> {
 	//TODO implement search using event title
 
